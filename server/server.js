@@ -14,10 +14,24 @@ let io = socketIO(server);
 
 io.on("connection", (socket) => {
    console.log("New Connection");
+   /*
+   socket.emit("newMessage", {
+       from : "Vijay",
+       msg : "How are you?"
+   });
+   */
 
-    socket.on("disconnect", () => {
-        console.log("Disconnected from Server");
-    });
+   socket.on("createMessage", (message) => {
+       console.log("Create Message : ", message);
+       io.emit("newMessage", {
+           from : message.from,
+           to : message.to,
+           createdAt : new Date().getTime()
+       });
+   });
+   socket.on("disconnect", () => {
+       console.log("Disconnected from Server");
+   });
 });
 
 server.listen(port, function(){
