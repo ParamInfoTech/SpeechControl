@@ -14,16 +14,22 @@ let io = socketIO(server);
 
 io.on("connection", (socket) => {
    console.log("New Connection");
-   /*
-   socket.emit("newMessage", {
+   /*socket.emit("newMessage", {
        from : "Vijay",
        msg : "How are you?"
-   });
-   */
+   });*/
 
    socket.on("createMessage", (message) => {
        console.log("Create Message : ", message);
-       io.emit("newMessage", {
+       /*io.emit("newMessage", {
+           from : message.from,
+           to : message.to,
+           createdAt : new Date().getTime()
+       });*/
+
+       // io.emmit: Broadcast message to every connected user including Sender
+       // socket.broadcast.emit: Broadcast message to every connected user excluding Sender
+       socket.broadcast.emit("newMessage", {
            from : message.from,
            to : message.to,
            createdAt : new Date().getTime()
