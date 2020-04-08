@@ -11,7 +11,7 @@
 
     <button id="btnGiveCommand"> Give Command </button>
     <br><br>
-    <span id="message"></span>
+    <p id="message"></p>
     <br><br>
     <input id="chkVijay" type="checkbox"> Vijay Katkar
     <br>
@@ -31,19 +31,22 @@
         grammarList.addFromString(grammar, 1);
 
         recognition.grammars = grammarList;
-        recognition.lang = "en-US";
+        //recognition.lang = "hi-IN";
+        recognition.lang = "en-IN";
         recognition.interimResults = false;
+        recognition.continuous = true;
 
         recognition.onresult =  function (event) {
             let last = event.results.length - 1;
             let command = event.results[last][0].transcript;
-            message.textContent = "Voice Command : " + command +  ".";
-
-            if(command.toLocaleLowerCase() == "select vijay"){
+            message.innerHTML = command.toLocaleLowerCase().trim();
+            if( message.innerHTML == "select vijay"){
                 document.querySelector("#chkVijay").checked = true;
-            } else if(command.toLocaleLowerCase() == "select poonam"){
+            }
+            if( message.innerHTML == "select punam"){
                 document.querySelector("#chkPoonam").checked = true;
-            } else if(command.toLocaleLowerCase() == "select payal"){
+            }
+            if( message.innerHTML == "select payal"){
                 document.querySelector("#chkPayal").checked = true;
             }
         }
