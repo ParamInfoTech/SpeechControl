@@ -47,15 +47,26 @@ async function send_code(driver, code) {
     /* getting the first line of code inside codemirror and clicking it to bring it in focus */
     let lines = await codeMirror.findElements(By.className("CodeMirror-line"));
     let codeLine = "";
-    if(lines.length > 0){
-        codeLine = lines[lines.length-1];
-    }else {
-        codeLine = lines[0];
+    let arr = code.split(" ");
+    if(arr[0] == "line"){
+        if(arr[2] > lines.length){
+            codeLine = lines[lines.length-1];
+        }else{
+            codeLine = lines[arr[2]-1];
+        }
+        codeLine.click();
     }
-    codeLine.click();
-    /* sending keystokes to textarea once codemirror is in focus */
-    let txtbx = await codeMirror.findElement(By.css("textarea"));
-    await txtbx.sendKeys(code);
+    else {
+        if(lines.length > 0){
+            codeLine = lines[lines.length-1];
+        }else {
+            codeLine = lines[0];
+        }
+        codeLine.click();
+        /* sending keystokes to textarea once codemirror is in focus */
+        let txtbx = await codeMirror.findElement(By.css("textarea"));
+        await txtbx.sendKeys(code);
+    }
 }
 
 server.listen(port, function(){
