@@ -2,9 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Voice Based Python IDE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/javascripts/codemirror.css">
+    <script src="/javascripts/codemirror.js"></script>
+    <script src="/javascripts/python.js"></script>
+
+    <link rel="stylesheet" href="/stylesheets/bootstrap4/bootstrap.min.css">
+    <script src="/stylesheets/bootstrap4/jquery.min.js"></script>
+    <script src="/stylesheets/bootstrap4/bootstrap.min.js"></script>
+    <script src="/stylesheets/bootstrap4/popper.min.js"></script>
+
+    <link rel="stylesheet" href="/stylesheets/main.css">
+
+    <script type="text/javascript">
+        window.onload=function(){
+            CodeMirror.fromTextArea(document.getElementById('code_area'), {
+                lineNumbers: true,
+                matchBrackets: true,
+                mode: "python"
+            });
+        }
+    </script>
 </head>
 <body>
+
+    <button id="btnGiveCommand"> Give Command </button>
+    <br><br>
+    <p id="message"></p>
+    <br><br>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-6">
+                <form action = "/RunPython3" method="POST">
+                    <button type="submit">Run</button>  <br>
+<textarea id="code_area" name="code_area">
+
+</textarea>
+                </form>
+            </div>
+
+            <div class="col-lg-6">
+                <br>
+                <textarea id= "output" class="output-area">
+                </textarea>
+            </div>
+        </div>
+    </div>
+
+    <script src = "/socket.io/socket.io.js"> </script>
+    <script src = "/javascripts/voice_capture.js"> </script>
+    <script>
+        document.querySelector("#btnGiveCommand").addEventListener("click", function () {
+            recognition.start();
+        });
+    </script>
 
 </body>
 </html>

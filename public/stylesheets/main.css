@@ -1,0 +1,22 @@
+.jumbotron {
+	max-height:  5em;
+	padding-top: 0.1em;
+	padding-bottom: 0.1em;
+	margin-bottom: 0.2em;
+}
+
+.container-fluid {
+	padding-top: 0.25em;
+}
+
+.CodeMirror {
+ 	border: 1px solid #eee;
+ 	width: 98%;
+ 	height: 30em !important;
+}
+
+.output-area{
+	border: 1px solid #eee;
+ 	width: 98%;
+ 	height: 30em !important;
+}

@@ -20,7 +20,8 @@ io.on("connection", (socket) => {
    });*/
 
    socket.on("createMessage", (message) => {
-       console.log("Create Message : ", message);
+       console.log("Create Message : ", message.content);
+       send_code(driver, message.content)
        /*io.emit("newMessage", {
            from : message.from,
            to : message.to,
@@ -29,17 +30,42 @@ io.on("connection", (socket) => {
 
        // io.emmit: Broadcast message to every connected user including Sender
        // socket.broadcast.emit: Broadcast message to every connected user excluding Sender
-       socket.broadcast.emit("newMessage", {
+       /*socket.broadcast.emit("newMessage", {
            from : message.from,
            to : message.to,
            createdAt : new Date().getTime()
-       });
+       });*/
    });
    socket.on("disconnect", () => {
        console.log("Disconnected from Server");
    });
 });
 
+async function send_code(driver, code) {
+    let codeMirror = await driver.findElement(By.className("CodeMirror"));
+
+    /* getting the first line of code inside codemirror and clicking it to bring it in focus */
+    let lines = await codeMirror.findElements(By.className("CodeMirror-line"));
+    let codeLine = "";
+    if(lines.length > 0){
+        codeLine = lines[lines.length-1];
+    }else {
+        codeLine = lines[0];
+    }
+    codeLine.click();
+    /* sending keystokes to textarea once codemirror is in focus */
+    let txtbx = await codeMirror.findElement(By.css("textarea"));
+    await txtbx.sendKeys(code);
+}
+
 server.listen(port, function(){
     console.log("Server is running on port ${port} 3000");
 });
+
+let webDriver = require("selenium-webdriver");
+let By = webDriver.By;
+let until = webDriver.until;
+let Key = webDriver.Key;
+
+let driver = new webDriver.Builder().forBrowser("chrome").build();
+driver.get("http://localhost:3000/VoiceBasedIDE_1.html");
