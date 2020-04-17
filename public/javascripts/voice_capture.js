@@ -13,6 +13,12 @@ socket.on("newMessage", function (message) {
     console.log("New Message : ", message);
 });
 
+socket.on("output", function (message) {
+    alert(message.out);
+    document.getElementById("output_area").value = message.out;
+    document.getElementById("output_area").value += message.err;
+});
+
 socket.on("disconnect", function() {
     console.log("Disconnected from Server");
 });
@@ -38,11 +44,26 @@ recognition.onresult =  function (event) {
     let last = event.results.length - 1;
     let command = event.results[last][0].transcript;
     //alert(command);
-    message.innerHTML = command.toLocaleLowerCase().trim();
+    let content = command.toLocaleLowerCase().trim();
 
-    socket.emit("createMessage", {
-        content : command.toLocaleLowerCase().trim()
-    });
+    content = content.replace(/plus/g, "+");
+    content = content.replace(/minus/g, "-");
+    content = content.replace(/star/g, "*");
+    content = content.replace(/divide/g, "/");
+    content = content.replace(/equal/g, "=");
+
+    message.innerHTML = content;
+    let code = document.getElementById("code_area").value;
+    //alert(code);
+    if(content == "run"){
+        socket.emit("code2run", {
+            code : code
+        });
+    } else{
+        socket.emit("createMessage", {
+            content : content
+        });
+    }
 }
 
 recognition.onspeechend = function () {

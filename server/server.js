@@ -3,6 +3,9 @@ const http = require("http");
 const express = require("express");
 const socketIO = require("socket.io")
 
+const fs = require("fs");
+const cp = require("child_process");
+
 const port = process.env.PORT || 3000;
 const publicPath = path.join(__dirname, "/../public");
 
@@ -18,6 +21,25 @@ io.on("connection", (socket) => {
        from : "Vijay",
        msg : "How are you?"
    });*/
+
+   socket.on("code2run", (code) => {
+       console.log(code.code);
+       fs.writeFileSync("abc.py", code.code, (err) =>{
+           console.log("Error : " + err);
+       });
+       let cmd = cp.exec("python abc.py", (e, stdout, stderr) => {
+           if (e instanceof Error) {
+               console.error(e);
+           }
+           console.log('stdout ', stdout);
+           console.log('stderr ', stderr);
+
+           socket.emit("output", {
+               out: stdout,
+               err: stderr
+           })
+       });
+    });
 
    socket.on("createMessage", (message) => {
        console.log("Create Message : ", message.content);
@@ -41,42 +63,85 @@ io.on("connection", (socket) => {
    });
 });
 
-async function send_code(driver, code) {
-    let codeMirror = await driver.findElement(By.className("CodeMirror"));
-
-    /* getting the first line of code inside codemirror and clicking it to bring it in focus */
-    let lines = await codeMirror.findElements(By.className("CodeMirror-line"));
-    let codeLine = "";
-    let arr = code.split(" ");
-    if(arr[0] == "line"){
-        if(arr[2] > lines.length){
-            codeLine = lines[lines.length-1];
-        }else{
-            codeLine = lines[arr[2]-1];
-        }
-        codeLine.click();
-    }
-    else {
-        if(lines.length > 0){
-            codeLine = lines[lines.length-1];
-        }else {
-            codeLine = lines[0];
-        }
-        codeLine.click();
-        /* sending keystokes to textarea once codemirror is in focus */
-        let txtbx = await codeMirror.findElement(By.css("textarea"));
-        await txtbx.sendKeys(code);
-    }
-}
-
 server.listen(port, function(){
     console.log("Server is running on port ${port} 3000");
 });
 
 let webDriver = require("selenium-webdriver");
+let chrome = require("selenium-webdriver/chrome");
 let By = webDriver.By;
 let until = webDriver.until;
 let Key = webDriver.Key;
 
-let driver = new webDriver.Builder().forBrowser("chrome").build();
-driver.get("http://localhost:3000/VoiceBasedIDE_1.html");
+let options = new chrome.Options();
+options.addArguments("window-size=600,500");
+
+let driver = new webDriver.Builder().forBrowser("chrome").setChromeOptions(options).build();
+driver.get("http://localhost:3000/VoiceBasedIDE_2.html");
+
+async function send_code(driver, code) {
+    let txtbx = await driver.findElement(By.id("code_area"));
+    let arr = code.split(" ");
+    let options = ["(", ")", "," , '"', "'", "_", "__", "-", ".", ":"];
+    let option_dict = {"one": 1, "two": 2, "to" : 2, "three": 3, "four": 4,
+                        "five": 5, "six": 6, "seven": 7, "eight":8,
+                        "nine": 9, "ten": 10};
+    let words = ["enter", "up", "down", "tab", "space", "backward", "forward", "delete", "home", "back"];
+    for(let i = 0; i < arr.length; i++){
+        switch(arr[i]){
+            case "enter":
+                await txtbx.sendKeys(Key.RETURN);
+                break;
+
+            case "up":
+                await txtbx.sendKeys(Key.ARROW_UP);
+                break;
+
+            case "down":
+                await txtbx.sendKeys(Key.ARROW_DOWN);
+                break;
+
+            case "tab":
+                await txtbx.sendKeys(Key.SPACE + Key.SPACE + Key.SPACE);
+                break;
+
+            case "space":
+                await txtbx.sendKeys(Key.SPACE);
+
+            case "backward":
+                await txtbx.sendKeys(Key.ARROW_LEFT);
+                break;
+
+            case "forward":
+                await txtbx.sendKeys(Key.ARROW_RIGHT);
+                break;
+
+            case "delete":
+                await txtbx.sendKeys(Key.DELETE);
+                break;
+
+            case "back":
+                await txtbx.sendKeys(Key.BACK_SPACE);
+                break;
+
+            case "home":
+                await txtbx.sendKeys(Key.HOME);
+                break;
+
+            case "option":
+                i = i + 1;
+                console.log("Check : ", options[arr[i] -1], " " + arr[i]);
+                let to_send = "";
+                if(isNaN(arr[i])){
+                    to_send = options[option_dict[arr[i]] -1];
+                } else{
+                    to_send = options[arr[i] -1];
+                }
+                await txtbx.sendKeys(to_send + "");
+                break;
+
+            default:
+                await txtbx.sendKeys(arr[i] + " ");
+        }
+    }
+}
